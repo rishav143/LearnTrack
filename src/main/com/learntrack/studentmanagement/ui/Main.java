@@ -18,10 +18,6 @@ public class Main {
 
     public static Course getSelectedCourse(Scanner sc, String header, String footer,
                                            CourseService courseService, EnrollmentService enrollmentService) {
-        if(courseService.isCoursesEmpty()) {
-            System.out.println("There are no courses available");
-            displayCourseMenu(sc, header, footer, courseService, enrollmentService);
-        }
 
         List<Course> courses = courseService.getAllCourses();
 
@@ -42,22 +38,19 @@ public class Main {
 
     public static void displayEnrollemnts(Scanner sc, String header, String footer, CourseService courseService,
                                           StudentService studentService, EnrollmentService enrollmentService) {
-            if (enrollmentService.isEnrollmentsEmpty()) {
-                System.out.println("There are no enrollments available");
-                displayEnrollmentMenu(sc, header, footer, courseService, studentService, enrollmentService);
-            }
-            List<Enrollment> enrollments = enrollmentService.getAllEnrollments();
-            int index = 1;
-            for (Enrollment enrollment : enrollments) {
-                int studentId = enrollment.getStudentId();
-                Student student = studentService.getStudentById(studentId);
-                int courseId = enrollment.getCourseId();
-                Course course = courseService.getCourseById(courseId);
 
-                System.out.println(index++ + ". " + "Enrolled Student Name: " + student.getDisplayName() + '\n' +
-                        "Enrolled Course Name: " + course.getCourseName() + '\n' +
-                        "Enrollment Date: " + enrollment.getEnrolmentDate() + '\n');
-            }
+        List<Enrollment> enrollments = enrollmentService.getAllEnrollments();
+        int index = 1;
+        for (Enrollment enrollment : enrollments) {
+            int studentId = enrollment.getStudentId();
+            Student student = studentService.getStudentById(studentId);
+            int courseId = enrollment.getCourseId();
+            Course course = courseService.getCourseById(courseId);
+
+            System.out.println(index++ + ". " + "Enrolled Student Name: " + student.getDisplayName() + '\n' +
+                    "Enrolled Course Name: " + course.getCourseName() + '\n' +
+                    "Enrollment Date: " + enrollment.getEnrolmentDate() + '\n');
+        }
     }
 
     public static Enrollment getSelectedEnrollment(Scanner sc, String header, String footer, CourseService courseService,
@@ -106,7 +99,7 @@ public class Main {
 
                 if (courseName.isBlank()) {
                     System.out.println("Name field cannot be blank");
-                    displayCourseMenu(sc, header, footer, courseService, enrollmentService);
+                    return;
                 }
 
                 System.out.println("Enter course description: ");
@@ -126,7 +119,7 @@ public class Main {
                     for (Enrollment enrollment : enrollments) {
                         if (enrollment.getCourseId() == selectedCourse.getId()) {
                             System.out.println("Student already enrolled with course Id: " + enrollment.getCourseId());
-                            displayCourseMenu(sc, header, footer, courseService, enrollmentService);
+                            return;
                         }
                     }
                 }
@@ -134,6 +127,10 @@ public class Main {
 
                 System.out.println("Course has been removed successfully.\n");
             } else if (input == 3) {
+                if(courseService.isCoursesEmpty()) {
+                    System.out.println("There are no courses available");
+                    return;
+                }
                 System.out.println("Select course from below options: ");
                 Course selectedCourse = getSelectedCourse(sc, header, footer, courseService, enrollmentService);
 
@@ -181,7 +178,7 @@ public class Main {
                     return;
                 } else {
                     System.out.println("Invalid choice");
-                    displayCourseMenu(sc, header, footer, courseService, enrollmentService);
+                    return;
                 }
 
                 courseService.updateCourse(selectedCourse);
@@ -189,7 +186,6 @@ public class Main {
             } else if (input == 5) {
                 if (courseService.isCoursesEmpty()) {
                     System.out.println("There are no courses available");
-                    displayCourseMenu(sc, header, footer, courseService, enrollmentService);
                     return;
                 }
 
@@ -208,6 +204,7 @@ public class Main {
                 exitFlag = true;
                 return;
             }
+            displayCourseMenu(sc, header, footer, courseService, enrollmentService);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -244,7 +241,7 @@ public class Main {
                 String studentName = sc.next();
                 if (studentName.isBlank()) {
                     System.out.println("Student name cannot be blank");
-                    displayEnrollmentMenu(sc, header, footer, courseService, studentService, enrollmentService);
+                    return;
                 }
                 System.out.println("Enter Student Last Name: ");
                 String studentLastName = sc.next();
@@ -252,7 +249,7 @@ public class Main {
                 String studentEmail = sc.next();
                 if (studentEmail.isBlank()) {
                     System.out.println("Student email cannot be blank");
-                    displayEnrollmentMenu(sc, header, footer, courseService, studentService, enrollmentService);
+                    return;
                 }
                 System.out.println("Enter Student Batch: ");
                 String studentBatch = sc.next();
@@ -265,12 +262,16 @@ public class Main {
                 Enrollment selectedEnrollment = getSelectedEnrollment(sc, header, footer, courseService, studentService, enrollmentService);
                 enrollmentService.removeEnrollment(selectedEnrollment);
             } else if (choice == 3) {
+                if (enrollmentService.isEnrollmentsEmpty()) {
+                    System.out.println("There are no enrollments available");
+                    return;
+                }
                 displayEnrollemnts(sc, header, footer, courseService, studentService, enrollmentService);
                 System.out.println("Enrollment has been viewed successfully.\n");
             } else if (choice == 4) {
                 if(studentService.isStudentsEmpty()){
                     System.out.println("There are no students available");
-                    displayEnrollmentMenu(sc, header, footer, courseService, studentService, enrollmentService);
+                    return;
                 }
 
                 sc.nextLine();
@@ -280,7 +281,7 @@ public class Main {
                 for (Student student : students) {
                     if (!student.getFirstName().equals(firstName)) {
                         System.out.println("Student name does not match");
-                        displayEnrollmentMenu(sc, header, footer, courseService, studentService, enrollmentService);
+                        return;
                     }
                 }
                 Student student = studentService.getStudentByName(firstName);
@@ -324,7 +325,7 @@ public class Main {
                 }
                 else {
                     System.out.println("Invalid choice");
-                    displayCourseMenu(sc, header, footer, courseService, enrollmentService);
+                    return;
                 }
 
                 studentService.updateStudent(student);
